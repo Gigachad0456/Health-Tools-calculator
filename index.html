@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Tools Hub — BMI, BMR/TDEE, Pregnancy, Water & Steps</title>
+  <meta name="description" content="Free health calculators with personalized diet and activity suggestions, and visual charts: BMI, Calorie Needs, Pregnancy Due Date, Water Intake, and Steps to Calories.">
+  <meta name="keywords" content="health calculators, BMI calculator, BMR calculator, TDEE calculator, pregnancy due date, water intake, steps to calories">
+  <meta name="author" content="Health Tools Hub">
+  <meta property="og:title" content="Health Tools Hub — BMI, BMR, Pregnancy, Water & Steps">
+  <meta property="og:description" content="Free health calculators with personalized diet and activity suggestions, and visual charts: BMI, Calorie Needs, Pregnancy Due Date, Water Intake, and Steps to Calories.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="/favicon.ico">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Chart.js for visual charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #ecfeff 0%, #fefce8 100%);
+      color: #1f2937;
+    }
+    .container { max-width: 1200px; }
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #0d9488, #f97316);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      color: white;
+      animation: fadeIn 1s ease-in;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; }
+    header p { font-size: 1rem; opacity: 0.9; }
+    /* Navigation */
+    .nav-pills .nav-link {
+      background: #ffffff;
+      border-radius: 0.75rem;
+      color: #1f2937;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      margin: 0.25rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .nav-pills .nav-link:hover:not(.active) {
+      background: #f3f4f6;
+      color: #1f2937 !important;
+      transform: scale(1.05);
+    }
+    .nav-pills .nav-link.active {
+      background: linear-gradient(90deg, #0d9488, #f97316);
+      color: #000000 !important;
+      border: 2px solid #0f766e;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+    /* Calculator Cards */
+    .calculator-card {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid transparent;
+      background-image: linear-gradient(to right, #0d9488 4px, transparent 4px);
+      animation: fadeInUp 0.5s ease-out;
+    }
+    .calculator-card h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #0d9488;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .calculator-card h2 i { font-size: 1.25rem; }
+    .calculator-card p { font-size: 0.9rem; color: #6b7280; }
+    /* Suggestions */
+    .suggestions {
+      background: #f8f9fa;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #1f2937;
+      border-left: 3px solid #0d9488;
+    }
+    .suggestions h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .suggestions h3 i { font-size: 1rem; }
+    .suggestions ul { margin: 0; padding-left: 1.25rem; }
+    .suggestions li { margin-bottom: 0.5rem; }
+    /* Charts */
+    .chart-container {
+      max-width: 400px;
+      margin: 1rem auto;
+    }
+    /* Form Inputs */
+    .form-control, .form-select {
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 8px rgba(13, 148, 136, 0.3);
+    }
+    .error { display: none; color: #dc2626; font-size: 0.85rem; }
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(90deg, #0d9488, #f97316);
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .btn-outline-secondary {
+      border-radius: 0.5rem;
+      border-color: #6b7280;
+      color: #1f2937;
+      transition: transform 0.2s;
+    }
+    .btn-outline-secondary:hover {
+      transform: translateY(-2px);
+      background: #f3f4f6;
+      border-color: #0d9488;
+      color: #0d9488;
+    }
+    /* Footer */
+    footer {
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    footer a { color: #0d9488; }
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Responsive */
+    @media (max-width: 576px) {
+      header { padding: 1.5rem; }
+      .nav-pills .nav-link { padding: 0.5rem 1rem; }
+      .calculator-card { padding: 1.5rem; }
+      .suggestions { font-size: 0.85rem; }
+      .suggestions h3 { font-size: 0.95rem; }
+      .calculator-card h2 { font-size: 1.3rem; }
+      .calculator-card h2 i { font-size: 1.1rem; }
+      .chart-container { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <!-- Header -->
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
+      <div class="text-center text-md-start">
+        <h1><i class="bi bi-heart-pulse me-2"></i> Health Tools Hub</h1>
+        <p>Explore our free calculators with tailored diet and activity suggestions.</p>
+      </div>
+      <div class="mt-3 mt-md-0">
+        <div class="d-none d-md-block bg-light rounded p-2 text-center small text-muted" style="width: 250px; height: 60px;">AD - Header (AdSense)</div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav nav-pills flex-column flex-sm-row mb-5 gap-2 justify-content-center">
+      <a class="nav-link active" href="#bmi" onclick="showCalculator('bmi')" aria-label="BMI Calculator"><i class="bi bi-rulers me-2"></i>BMI</a>
+      <a class="nav-link" href="#bmr" onclick="showCalculator('bmr')" aria-label="BMR and TDEE Calculator"><i class="bi bi-fire me-2"></i>BMR / TDEE</a>
+      <a class="nav-link" href="#preg" onclick="showCalculator('preg')" aria-label="Pregnancy Due Date Calculator"><i class="bi bi-balloon-heart me-2"></i>Pregnancy</a>
+      <a class="nav-link" href="#water" onclick="showCalculator('water')" aria-label="Water Intake Calculator"><i class="bi bi-droplet me-2"></i>Water Intake</a>
+      <a class="nav-link" href="#steps" onclick="showCalculator('steps')" aria-label="Steps to Calories Calculator"><i class="bi bi-shoe-prints me-2"></i>Steps → kcal</a>
+      <a class="nav-link" href="about.html" aria-label="About Us"><i class="bi bi-info-circle me-2"></i>About</a>
+      <a class="nav-link" href="contact.html" aria-label="Contact Us"><i class="bi bi-envelope me-2"></i>Contact</a>
+      <a class="nav-link" href="privacy.html" aria-label="Privacy Policy"><i class="bi bi-shield-lock me-2"></i>Privacy</a>
+      <a class="nav-link" href="terms.html" aria-label="Terms of Service"><i class="bi bi-file-earmark-text me-2"></i>Terms</a>
+    </nav>
+
+    <!-- BMI Calculator -->
+    <section id="bmi" class="calculator-card bg-white mb-4">
+      <div class="row align-items-start">
+        <div class="col-md-8">
+          <h2><i class="bi bi-rulers"></i> BMI Calculator</h2>
+          <p>Calculate your Body Mass Index to screen for weight categories (not a diagnostic tool).</p>
+        </div>
+        <div class="col-md-4 d-none d-md-block">
+          <div class="bg-light rounded p-2 text-center small text-muted" style="height: 50px;">AD</div>
+        </div>
+      </div>
+      <form class="row g-3 mt-2">
+        <div class="col-sm-4">
+          <label for="bmiUnits" class="form-label small">Units</label>
+          <select id="bmiUnits" class="form-select" onchange="convertBMIUnits()" aria-describedby="bmiUnitsDesc">
+            <option value="metric">Metric (kg, cm)</option>
+            <option value="imperial">Imperial (lb, in)</option>
+          </select>
+          <div id="bmiUnitsDesc" class="form-text small text-muted">Choose metric or imperial units.</div>
+        </div>
+        <div class="col-sm-4">
+          <label for="bmiWeight" class="form-label small">Weight</label>
+          <input id="bmiWeight" type="number" step="0.1" min="0.5" max="500" class="form-control" value="70" aria-describedby="bmiWeightError">
+          <div id="bmiWeightError" class="error">Enter valid weight (0.5–500 kg or 1–1100 lb).</div>
+        </div>
+        <div class="col-sm-4">
+          <label for="bmiHeight" class="form-label small">Height</label>
+          <input id="bmiHeight" type="number" step="0.1" min="30" max="300" class="form-control" value="175" aria-describedby="bmiHeightError">
+          <div id="bmiHeightError" class="error">Enter valid height (30–300 cm or 12–120 in).</div>
+        </div>
+      </form>
+      <div class="mt-3 d-flex flex-wrap gap-2">
+        <button onclick="calcBMI()" class="btn btn-primary" aria-label="Calculate BMI">Calculate BMI</button>
+        <button onclick="clearBMI()" class="btn btn-outline-secondary" aria-label="Clear BMI Form">Clear</button>
+      </div>
+      <div id="bmiResult" class="mt-3 text-muted" role="alert"></div>
+      <div id="bmiSuggestions" class="suggestions" style="display: none;"></div>
+      <div class="chart-container">
+        <canvas id="bmiChart" style="display: none;" aria-label="BMI chart showing user BMI compared to weight categories"></canvas>
+      </div>
+    </section>
+
+    <!-- BMR / TDEE Calculator -->
+    <section id="bmr" class="calculator-card bg-white mb-4 d-none">
+      <div class="row align-items-start">
+        <div class="col-md-8">
+          <h2><i class="bi bi-fire"></i> Calorie Needs — BMR & TDEE</h2>
+          <p>Estimate daily calorie needs using Mifflin-St Jeor BMR and activity multipliers.</p>
+        </div>
+        <div class="col-md-4 d-none d-md-block">
+          <div class="bg-light rounded p-2 text-center small text-muted" style="height: 50px;">AD</div>
+        </div>
+      </div>
+      <form class="row g-3 mt-2">
+        <div class="col-sm-3">
+          <label for="bmrSex" class="form-label small">Sex</label>
+          <select id="bmrSex" class="form-select">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <label for="bmrAge" class="form-label small">Age (years)</label>
+          <input id="bmrAge" type="number" min="1" max="120" class="form-control" value="30" aria-describedby="bmrAgeError">
+          <div id="bmrAgeError" class="error">Enter valid age (1–120 years).</div>
+        </div>
+        <div class="col-sm-3">
+          <label for="bmrWeight" class="form-label small">Weight (kg)</label>
+          <input id="bmrWeight" type="number" step="0.1" min="0.5" max="500" class="form-control" value="70" aria-describedby="bmrWeightError">
+          <div id="bmrWeightError" class="error">Enter valid weight (0.5–500 kg).</div>
+        </div>
+        <div class="col-sm-3">
+          <label for="bmrHeight" class="form-label small">Height (cm)</label>
+          <input id="bmrHeight" type="number" step="0.1" min="30" max="300" class="form-control" value="175" aria-describedby="bmrHeightError">
+          <div id="bmrHeightError" class="error">Enter valid height (30–300 cm).</div>
+        </div>
+        <div class="col-sm-6">
+          <label for="bmrActivity" class="form-label small">Activity Level</label>
+          <select id="bmrActivity" class="form-select">
+            <option value="1.2">Sedentary (little or no exercise)</option>
+            <option value="1.375">Lightly active (1-3 days/week)</option>
+            <option value="1.55">Moderately active (3-5 days/week)</option>
+            <option value="1.725">Very active (6-7 days/week)</option>
+            <option value="1.9">Extra active (hard exercise & physical job)</option>
+          </select>
+        </div>
+        <div class="col-sm-6 d-flex align-items-end gap-2">
+          <button onclick="calcBMR()" class="btn btn-primary" aria-label="Calculate BMR and TDEE">Calculate BMR & TDEE</button>
+          <button onclick="clearBMR()" class="btn btn-outline-secondary" aria-label="Clear BMR Form">Clear</button>
+        </div>
+      </form>
+      <div id="bmrResult" class="mt-3 text-muted" role="alert"></div>
+      <div id="bmrSuggestions" class="suggestions" style="display: none;"></div>
+      <div class="chart-container">
+        <canvas id="bmrChart" style="display: none;" aria-label="BMR and TDEE chart showing calorie needs and goals"></canvas>
+      </div>
+    </section>
+
+    <!-- Pregnancy Due Date Calculator -->
+    <section id="preg" class="calculator-card bg-white mb-4 d-none">
+      <h2><i class="bi bi-balloon-heart"></i> Pregnancy Due Date Calculator</h2>
+      <p>Estimate your due date using the first day of your last menstrual period (Naegle's rule).</p>
+      <form class="row g-3 mt-2">
+        <div class="col-sm-4">
+          <label for="lmp" class="form-label small">LMP (First Day)</label>
+          <input id="lmp" type="date" class="form-control" aria-describedby="lmpError">
+          <div id="lmpError" class="error">Select a valid LMP date.</div>
+        </div>
+        <div class="col-sm-4">
+          <label for="cycle" class="form-label small">Cycle Length (days)</label>
+          <input id="cycle" type="number" min="20" max="45" class="form-control" value="28" aria-describedby="cycleError">
+          <div id="cycleError" class="error">Enter valid cycle length (20–45 days).</div>
+        </div>
+        <div class="col-sm-4 d-flex align-items-end gap-2">
+          <button onclick="calcPreg()" class="btn btn-primary" aria-label="Calculate Due Date">Calculate Due Date</button>
+          <button onclick="clearPreg()" class="btn btn-outline-secondary" aria-label="Clear Pregnancy Form">Clear</button>
+        </div>
+      </form>
+      <div id="pregResult" class="mt-3 text-muted" role="alert"></div>
+      <div id="pregSuggestions" class="suggestions" style="display: none;"></div>
+      <div class="chart-container">
+        <canvas id="pregChart" style="display: none;" aria-label="Pregnancy progress chart showing weeks pregnant and remaining weeks"></canvas>
+      </div>
+    </section>
+
+    <!-- Water Intake Calculator -->
+    <section id="water" class="calculator-card bg-white mb-4 d-none">
+      <h2><i class="bi bi-droplet"></i> Daily Water Intake</h2>
+      <p>Estimate daily water needs (35 ml/kg + 350 ml per 30 min exercise).</p>
+      <form class="row g-3 mt-2">
+        <div class="col-sm-4">
+          <label for="waterWeight" class="form-label small">Weight (kg)</label>
+          <input id="waterWeight" type="number" step="0.1" min="0.5" max="500" class="form-control" value="70" aria-describedby="waterWeightError">
+          <div id="waterWeightError" class="error">Enter valid weight (0.5–500 kg).</div>
+        </div>
+        <div class="col-sm-4">
+          <label for="waterExercise" class="form-label small">Exercise (minutes/day)</label>
+          <input id="waterExercise" type="number" min="0" max="1440" class="form-control" value="30" aria-describedby="waterExerciseError">
+          <div id="waterExerciseError" class="error">Enter valid exercise time (0–1440 min).</div>
+        </div>
+        <div class="col-sm-4 d-flex align-items-end gap-2">
+          <button onclick="calcWater()" class="btn btn-primary" aria-label="Calculate Water Intake">Calculate</button>
+          <button onclick="clearWater()" class="btn btn-outline-secondary" aria-label="Clear Water Form">Clear</button>
+        </div>
+      </form>
+      <div id="waterResult" class="mt-3 text-muted" role="alert"></div>
+      <div id="waterSuggestions" class="suggestions" style="display: none;"></div>
+      <div class="chart-container">
+        <canvas id="waterChart" style="display: none;" aria-label="Water intake chart showing base and exercise water needs"></canvas>
+      </div>
+    </section>
+
+    <!-- Steps to Calories Calculator -->
+    <section id="steps" class="calculator-card bg-white mb-4 d-none">
+      <h2><i class="bi bi-shoe-prints"></i> Steps → Calories Burned</h2>
+      <p>Estimate calories burned from walking steps using a MET-based approximation.</p>
+      <form class="row g-3 mt-2">
+        <div class="col-sm-4">
+          <label for="stepsCount" class="form-label small">Steps</label>
+          <input id="stepsCount" type="number" min="1" max="100000" class="form-control" value="5000" aria-describedby="stepsCountError">
+          <div id="stepsCountError" class="error">Enter valid steps (1–100,000).</div>
+        </div>
+        <div class="col-sm-4">
+          <label for="stepsWeight" class="form-label small">Weight (kg)</label>
+          <input id="stepsWeight" type="number" step="0.1" min="0.5" max="500" class="form-control" value="70" aria-describedby="stepsWeightError">
+          <div id="stepsWeightError" class="error">Enter valid weight (0.5–500 kg).</div>
+        </div>
+        <div class="col-sm-4 d-flex align-items-end gap-2">
+          <button onclick="calcSteps()" class="btn btn-primary" aria-label="Estimate Calories from Steps">Estimate Calories</button>
+          <button onclick="clearSteps()" class="btn btn-outline-secondary" aria-label="Clear Steps Form">Clear</button>
+        </div>
+      </form>
+      <div id="stepsResult" class="mt-3 text-muted" role="alert"></div>
+      <div id="stepsSuggestions" class="suggestions" style="display: none;"></div>
+      <div class="chart-container">
+        <canvas id="stepsChart" style="display: none;" aria-label="Steps chart showing calories burned compared to daily goal"></canvas>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-muted small mt-5">
+      <p>These calculators and suggestions provide estimates for educational purposes only. Consult a healthcare professional for medical advice.</p>
+      <p>© 2025 Health Tools Hub. All rights reserved. | <a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a> | <a href="contact.html">Contact Us</a></p>
+    </footer>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+</body>
+</html>
